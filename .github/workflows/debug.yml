@@ -1,0 +1,13 @@
+name: debug fetch
+on: workflow_dispatch
+jobs:
+  d:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          curl -sS -m 40 -o page.html -D - -A "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" https://www.heliyatra.irctc.co.in/ || true
+          wc -c page.html || true
+          head -c 1500 page.html || true
+          echo
+          grep -o 'Kedarnath Dham</h3>.\{0,300\}' page.html | head -3 || true
+          curl -sS -m 20 https://ipinfo.io/json || true
