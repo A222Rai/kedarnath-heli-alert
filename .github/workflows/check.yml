@@ -1,0 +1,27 @@
+name: Kedarnath heli check
+on:
+  schedule:
+    - cron: "*/10 * * * *"   # every ~10 min (GitHub may delay a few minutes)
+  workflow_dispatch: {}       # "Run workflow" button for a manual test
+permissions:
+  contents: write
+concurrency: heli-check
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install requests beautifulsoup4
+      - run: python check.py
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+      - name: Save last seen banner
+        run: |
+          git config user.name "heli-bot"
+          git config user.email "heli-bot@users.noreply.github.com"
+          git add last_seen.txt
+          git diff --cached --quiet || (git commit -m "update banner state" && git push)
